@@ -1,0 +1,16 @@
+{
+  "name": "salooni-kw",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "صالوني Salooni — منصة حجز الصالونات النسائية في الكويت (ثنائي اللغة عربي/إنجليزي)",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "node dist/index.js",
+    "build": "node scripts/build.mjs",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
