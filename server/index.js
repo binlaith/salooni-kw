@@ -13,6 +13,9 @@ app.use(express.json({ limit: '10mb' }));
 const INITIAL_SALONS = [
   {
     id: 'salon-laleh',
+    status: 'approved',
+    whatsappPhone: '+96599001122',
+    commissionRate: 0.15,
     name: { ar: 'لاليه بيوتي لاونج', en: 'Laleh Beauty Lounge' },
     tagline: { ar: 'أناقة كويتية بلمسة فرنسية فاخرة', en: 'Kuwaiti elegance with a luxury French touch' },
     governorate: { ar: 'العاصمة', en: 'Al Asimah' },
@@ -147,6 +150,9 @@ const INITIAL_SALONS = [
   },
   {
     id: 'salon-velvet',
+    status: 'approved',
+    whatsappPhone: '+96599334455',
+    commissionRate: 0.15,
     name: { ar: 'فيلفت روز سبا آند بيوتي', en: 'Velvet Rose Spa & Beauty' },
     tagline: { ar: 'واحتكِ الهادئة للعناية بالأظافر والبشرة والشعر', en: 'Your serene sanctuary for nails, skin & hair care' },
     governorate: { ar: 'حولي', en: 'Hawalli' },
@@ -251,6 +257,9 @@ const INITIAL_SALONS = [
   },
   {
     id: 'salon-noor-bridal',
+    status: 'approved',
+    whatsappPhone: '+96599556677',
+    commissionRate: 0.15,
     name: { ar: 'دار نور للعرائس والتجميل', en: 'Dar Noor Bridal & Couture Beauty' },
     tagline: { ar: 'إطلالة ملكية تليق بليلة عمركِ وتألقكِ', en: 'Regal beauty crafted for your unforgettable moments' },
     governorate: { ar: 'العاصمة', en: 'Al Asimah' },
@@ -347,6 +356,9 @@ const INITIAL_SALONS = [
   },
   {
     id: 'salon-camellia',
+    status: 'approved',
+    whatsappPhone: '+96599778899',
+    commissionRate: 0.15,
     name: { ar: 'كاميليا نيل آند هير بار', en: 'Camellia Nail & Hair Bar' },
     tagline: { ar: 'دلّلي نفسكِ بأسرع وأجمل خدمات الشعر والأظافر', en: 'Pamper yourself with express luxury hair & nail care' },
     governorate: { ar: 'مبارك الكبير', en: 'Mubarak Al-Kabeer' },
@@ -421,11 +433,12 @@ const INITIAL_SALONS = [
   }
 ];
 
-const bookingsStore = [
+const INITIAL_BOOKINGS = [
   {
     id: 'BK-90421',
     salonId: 'salon-laleh',
     salonName: { ar: 'لاليه بيوتي لاونج', en: 'Laleh Beauty Lounge' },
+    salonWhatsapp: '+96599001122',
     area: { ar: 'بنيد القار', en: 'Bneid Al-Gar' },
     services: [
       { id: 'srv-1', name: { ar: 'سشوار وويفي ملكي مع سيروم الحرير', en: 'Royal Blowout & Silk Waves' }, priceKwd: 18.500, durationMin: 60 }
@@ -435,34 +448,261 @@ const bookingsStore = [
     timeSlot: '17:30',
     paymentMethod: 'knet',
     totalKwd: 18.500,
+    commissionKwd: 2.775,
+    salonNetKwd: 15.725,
     status: 'confirmed',
+    seenBySalon: false,
     customerPhone: '+965 9912 3456',
     customerName: 'سارة الصباح',
     shareWithFamily: true,
+    familyPhone: '+965 9988 7766',
+    salonWhatsappUrl: 'https://wa.me/96599001122?text=' + encodeURIComponent('🌸 تنبيه حجز جديد من منصة صالوني Salooni\nرقم الحجز: BK-90421\nالزبونة: سارة الصباح (+965 9912 3456)\nالخدمة: سشوار وويفي ملكي\nالخبيرة: أمل العتيبي\nالموعد: 2026-10-16 الساعة 17:30\nالمدفوع: 18.500 د.ك (KNET)'),
+    customerWhatsappUrl: 'https://wa.me/96599123456?text=' + encodeURIComponent('🌸 أهلاً بكِ سارة الصباح في صالوني Salooni\nتم تأكيد حجزكِ رقم BK-90421 في لاليه بيوتي لاونج يوم 2026-10-16 الساعة 17:30.'),
     createdAt: '2026-10-14T14:00:00Z'
   }
 ];
+
+const INITIAL_NOTIFICATIONS = [
+  {
+    id: 'NTF-1001',
+    salonId: 'salon-laleh',
+    bookingId: 'BK-90421',
+    type: 'new_booking',
+    title: { ar: '🔔 حجز جديد مدفوع (BK-90421) — 18.500 د.ك', en: '🔔 New Paid Booking (BK-90421) — 18.500 KD' },
+    message: {
+      ar: 'الزبونة سارة الصباح (+965 9912 3456) حجزت «سشوار وويفي ملكي» يوم 2026-10-16 الساعة 17:30 مع الخبيرة أمل العتيبي.',
+      en: 'Customer Sara Al-Sabah (+965 9912 3456) booked "Royal Blowout" on 2026-10-16 at 17:30 with Amal Al-Otaibi.'
+    },
+    whatsappUrl: INITIAL_BOOKINGS[0].salonWhatsappUrl,
+    customerWhatsappUrl: INITIAL_BOOKINGS[0].customerWhatsappUrl,
+    read: false,
+    createdAt: '2026-10-14T14:00:00Z'
+  }
+];
+
+const DATA_DIR = path.resolve(process.cwd(), 'data');
+const DB_FILE = path.join(DATA_DIR, 'salooni-db.json');
+
+function loadDb() {
+  try {
+    if (fs.existsSync(DB_FILE)) {
+      const raw = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+      if (raw && Array.isArray(raw.salons)) {
+        return {
+          salons: raw.salons,
+          bookings: Array.isArray(raw.bookings) ? raw.bookings : INITIAL_BOOKINGS,
+          notifications: Array.isArray(raw.notifications) ? raw.notifications : INITIAL_NOTIFICATIONS
+        };
+      }
+    }
+  } catch (e) {
+    console.error('Failed reading DB file, falling back to defaults:', e);
+  }
+  return {
+    salons: JSON.parse(JSON.stringify(INITIAL_SALONS)),
+    bookings: JSON.parse(JSON.stringify(INITIAL_BOOKINGS)),
+    notifications: JSON.parse(JSON.stringify(INITIAL_NOTIFICATIONS))
+  };
+}
+
+const db = loadDb();
+
+function saveDb() {
+  try {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf8');
+  } catch (e) {
+    console.error('Failed saving DB file:', e);
+  }
+}
+saveDb();
+
+function buildWhatsAppLink(phone, text) {
+  const digits = String(phone || '96599001122').replace(/\D/g, '');
+  const full = digits.startsWith('965') ? digits : '965' + digits;
+  return `https://wa.me/${full}?text=${encodeURIComponent(text)}`;
+}
 
 // ── مسارات الـ API ────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
   res.json({
     ok: true,
     service: 'salooni-kw',
-    phase: 1,
+    phase: '1+admin+salon-portal',
+    salonsCount: db.salons.length,
+    bookingsCount: db.bookings.length,
     timezone: 'Asia/Kuwait',
     currency: 'KWD',
     timestamp: Date.now()
   });
 });
 
-app.get('/api/salons', (_req, res) => {
-  res.json({ salons: INITIAL_SALONS });
+app.get('/api/salons', (req, res) => {
+  const showAll = req.query.all === '1';
+  const list = showAll ? db.salons : db.salons.filter((s) => s.status !== 'pending');
+  res.json({ salons: list });
 });
 
 app.get('/api/salons/:id', (req, res) => {
-  const salon = INITIAL_SALONS.find((s) => s.id === req.params.id);
+  const salon = db.salons.find((s) => s.id === req.params.id);
   if (!salon) return res.status(404).json({ error: 'Salon not found' });
   res.json({ salon });
+});
+
+app.post('/api/salons', (req, res) => {
+  const b = req.body || {};
+  const id = 'salon-' + Date.now().toString(36);
+  const nameAr = (b.nameAr || 'صالون جديد').trim();
+  const nameEn = (b.nameEn || nameAr).trim();
+  const govAr = (b.govAr || 'العاصمة').trim();
+  const govEn = (b.govEn || 'Al Asimah').trim();
+  const areaAr = (b.areaAr || 'السرة').trim();
+  const areaEn = (b.areaEn || areaAr).trim();
+  const whatsappPhone = (b.whatsappPhone || '+96599001122').trim();
+  const isOwnerRequest = Boolean(b.isOwnerRequest);
+
+  const initialServicePrice = Number(b.firstServicePriceKwd || 20.000);
+  const initialServiceAr = (b.firstServiceNameAr || 'جلسة عناية وتصفيف شعر كامل').trim();
+  const initialServiceEn = (b.firstServiceNameEn || 'Full Hair Styling & Care Session').trim();
+  const initialStaffAr = (b.firstStaffNameAr || 'سارة العلي').trim();
+  const initialStaffEn = (b.firstStaffNameEn || 'Sara Al-Ali').trim();
+
+  const newSalon = {
+    id,
+    status: isOwnerRequest ? 'pending' : 'approved',
+    whatsappPhone,
+    commissionRate: Number(b.commissionRate || 0.15),
+    name: { ar: nameAr, en: nameEn },
+    tagline: {
+      ar: (b.taglineAr || 'عناية نسائية فاخرة وخصوصية تامة في الكويت').trim(),
+      en: (b.taglineEn || 'Luxury ladies beauty & complete privacy in Kuwait').trim()
+    },
+    governorate: { ar: govAr, en: govEn },
+    area: { ar: areaAr, en: areaEn },
+    address: {
+      governorate: { ar: govAr, en: govEn },
+      area: { ar: areaAr, en: areaEn },
+      block: String(b.block || '1'),
+      street: { ar: b.streetAr || 'الشارع الرئيسي', en: b.streetEn || 'Main St' },
+      avenue: String(b.avenue || '1'),
+      building: { ar: b.buildingAr || 'مبنى 1، الدور الأول', en: b.buildingEn || 'Building 1, 1st Floor' }
+    },
+    rating: 5.0,
+    reviewsCount: 1,
+    priceTier: b.priceTier || '$$$',
+    verified: true,
+    ladiesOnlyBadge: {
+      ar: b.ladiesBadgeAr || 'خصوصية تامة للسيدات ١٠٠٪',
+      en: b.ladiesBadgeEn || '100% Ladies Only Privacy'
+    },
+    workingHours: {
+      sunThu: b.hoursSunThu || '10:00 - 21:00',
+      fri: b.hoursFri || '13:00 - 22:00',
+      sat: b.hoursSat || '10:00 - 22:00',
+      weekendNote: { ar: 'مفتوح يومي الجمعة والسبت', en: 'Open Friday & Saturday weekend' }
+    },
+    coverImage: b.coverImage || 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1000&q=85',
+    gallery: [
+      {
+        id: 'gal-' + Date.now(),
+        url: b.coverImage || 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=700&q=80',
+        caption: { ar: 'إطلالة من داخل الصالون', en: 'Inside our beauty lounge' },
+        blurFaceDefault: true
+      }
+    ],
+    categories: Array.isArray(b.categories) && b.categories.length ? b.categories : ['hair', 'nails', 'makeup', 'facial'],
+    services: [
+      {
+        id: 'srv-' + Date.now(),
+        category: b.firstServiceCategory || 'hair',
+        name: { ar: initialServiceAr, en: initialServiceEn },
+        description: { ar: 'خدمة احترافية بأفضل المنتجات العالمية', en: 'Professional service using luxury products' },
+        durationMin: Number(b.firstServiceDuration || 60),
+        priceKwd: initialServicePrice
+      }
+    ],
+    staff: [
+      {
+        id: 'st-' + Date.now(),
+        name: { ar: initialStaffAr, en: initialStaffEn },
+        role: { ar: b.firstStaffRoleAr || 'خبيرة تجميل وتصفيف', en: b.firstStaffRoleEn || 'Senior Beauty Specialist' },
+        rating: 5.0,
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+        blurFace: true
+      }
+    ],
+    reviews: []
+  };
+
+  db.salons.unshift(newSalon);
+  saveDb();
+  res.status(201).json({ ok: true, salon: newSalon });
+});
+
+app.patch('/api/salons/:id/status', (req, res) => {
+  const salon = db.salons.find((s) => s.id === req.params.id);
+  if (!salon) return res.status(404).json({ error: 'Salon not found' });
+  if (req.body.status) salon.status = req.body.status;
+  if (req.body.whatsappPhone) salon.whatsappPhone = req.body.whatsappPhone;
+  saveDb();
+  res.json({ ok: true, salon });
+});
+
+app.delete('/api/salons/:id', (req, res) => {
+  const idx = db.salons.findIndex((s) => s.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Salon not found' });
+  db.salons.splice(idx, 1);
+  saveDb();
+  res.json({ ok: true });
+});
+
+app.post('/api/salons/:id/services', (req, res) => {
+  const salon = db.salons.find((s) => s.id === req.params.id);
+  if (!salon) return res.status(404).json({ error: 'Salon not found' });
+  const b = req.body || {};
+  const srv = {
+    id: 'srv-' + Date.now().toString(36),
+    category: b.category || 'hair',
+    name: {
+      ar: (b.nameAr || 'خدمة جديدة').trim(),
+      en: (b.nameEn || b.nameAr || 'New Service').trim()
+    },
+    description: {
+      ar: (b.descAr || 'خدمة متميزة للسيدات').trim(),
+      en: (b.descEn || b.descAr || 'Premium beauty service').trim()
+    },
+    durationMin: Number(b.durationMin || 60),
+    priceKwd: Number(b.priceKwd || 15.000)
+  };
+  salon.services.push(srv);
+  if (!salon.categories.includes(srv.category)) {
+    salon.categories.push(srv.category);
+  }
+  saveDb();
+  res.status(201).json({ ok: true, service: srv, salon });
+});
+
+app.post('/api/salons/:id/staff', (req, res) => {
+  const salon = db.salons.find((s) => s.id === req.params.id);
+  if (!salon) return res.status(404).json({ error: 'Salon not found' });
+  const b = req.body || {};
+  const st = {
+    id: 'st-' + Date.now().toString(36),
+    name: {
+      ar: (b.nameAr || 'خبيرة جديدة').trim(),
+      en: (b.nameEn || b.nameAr || 'New Specialist').trim()
+    },
+    role: {
+      ar: (b.roleAr || 'خبيرة تجميل').trim(),
+      en: (b.roleEn || b.roleAr || 'Beauty Specialist').trim()
+    },
+    rating: 5.0,
+    avatar: b.avatar || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80',
+    blurFace: b.blurFace !== undefined ? Boolean(b.blurFace) : true
+  };
+  salon.staff.push(st);
+  saveDb();
+  res.status(201).json({ ok: true, staff: st, salon });
 });
 
 app.post('/api/auth/send-otp', (req, res) => {
@@ -496,33 +736,139 @@ app.post('/api/auth/verify-otp', (req, res) => {
   });
 });
 
-app.get('/api/bookings', (_req, res) => {
-  res.json({ bookings: bookingsStore });
+app.get('/api/bookings', (req, res) => {
+  const { salonId } = req.query;
+  const list = salonId ? db.bookings.filter((b) => b.salonId === salonId) : db.bookings;
+  res.json({ bookings: list });
+});
+
+app.get('/api/notifications', (req, res) => {
+  const { salonId } = req.query;
+  const list = salonId ? db.notifications.filter((n) => n.salonId === salonId) : db.notifications;
+  res.json({
+    notifications: list,
+    unreadCount: list.filter((n) => !n.read).length
+  });
+});
+
+app.post('/api/notifications/mark-read', (req, res) => {
+  const { salonId, id } = req.body || {};
+  db.notifications.forEach((n) => {
+    if (id && n.id === id) n.read = true;
+    else if (salonId && n.salonId === salonId) n.read = true;
+    else if (!id && !salonId) n.read = true;
+  });
+  saveDb();
+  res.json({ ok: true });
 });
 
 app.post('/api/bookings', (req, res) => {
   const body = req.body || {};
+  const salon = db.salons.find((s) => s.id === body.salonId) || db.salons[0];
+  const salonWhatsapp = (salon && salon.whatsappPhone) || '+96599001122';
+  const rate = (salon && salon.commissionRate) || 0.15;
+  const totalKwd = Number(body.totalKwd || 0);
+  const commissionKwd = Number((totalKwd * rate).toFixed(3));
+  const salonNetKwd = Number((totalKwd - commissionKwd).toFixed(3));
+
+  const bookingId = 'BK-' + Math.floor(10000 + Math.random() * 89999);
+  const servicesList = Array.isArray(body.services) ? body.services : [];
+  const servicesNamesAr = servicesList.map((s) => (s.name && s.name.ar) || s.name || '').join(' + ') || 'خدمة صالون';
+  const staffAr = (body.staffName && body.staffName.ar) || body.staffName || 'أي خبيرة متاحة';
+  const custName = body.customerName || 'سارة الصباح';
+  const custPhone = body.customerPhone || '+965 9912 3456';
+  const dateStr = body.date || '2026-10-16';
+  const timeStr = body.timeSlot || '16:00';
+  const payMethod = String(body.paymentMethod || 'knet').toUpperCase();
+
+  const salonWaText =
+    `🌸 *تنبيه حجز جديد من منصة صالوني Salooni*\n` +
+    `━━━━━━━━━━━━━━\n` +
+    `🔖 رقم الحجز: ${bookingId}\n` +
+    `👩 الزبونة: ${custName}\n` +
+    `📱 موبايل الزبونة: ${custPhone}\n` +
+    `💇‍♀️ الخدمة: ${servicesNamesAr}\n` +
+    `✨ الخبيرة: ${staffAr}\n` +
+    `📅 التاريخ: ${dateStr} | ⏰ الساعة: ${timeStr}\n` +
+    `💳 المدفوع: ${totalKwd.toFixed(3)} د.ك (${payMethod})\n` +
+    `━━━━━━━━━━━━━━\n` +
+    `يرجى تأكيد الاستعداد للموعد عبر لوحة الصالون.`;
+
+  const customerWaText =
+    `🌸 *أهلاً بكِ ${custName} في صالوني Salooni*\n` +
+    `تم تأكيد حجزكِ في *${salon ? salon.name.ar : 'الصالون'}*\n` +
+    `🔖 رقم الحجز: ${bookingId}\n` +
+    `💇‍♀️ الخدمة: ${servicesNamesAr}\n` +
+    `📅 الموعد: ${dateStr} الساعة ${timeStr}\n` +
+    `📍 العنوان: ${salon ? salon.area.ar : 'الكويت'}\n` +
+    `نتمنى لكِ تجربة جمال مميزة!`;
+
   const booking = {
-    id: 'BK-' + Math.floor(10000 + Math.random() * 89999),
-    salonId: body.salonId,
-    salonName: body.salonName || { ar: 'صالون صالوني', en: 'Salooni Partner' },
-    area: body.area || { ar: 'الكويت', en: 'Kuwait' },
-    services: Array.isArray(body.services) ? body.services : [],
+    id: bookingId,
+    salonId: salon ? salon.id : body.salonId,
+    salonName: salon ? salon.name : (body.salonName || { ar: 'صالون صالوني', en: 'Salooni Partner' }),
+    salonWhatsapp,
+    area: salon ? salon.area : (body.area || { ar: 'الكويت', en: 'Kuwait' }),
+    services: servicesList,
     staffName: body.staffName || { ar: 'أي خبيرة متاحة', en: 'Any Available Specialist' },
-    date: body.date || '2026-10-16',
-    timeSlot: body.timeSlot || '16:00',
+    date: dateStr,
+    timeSlot: timeStr,
     paymentMethod: body.paymentMethod || 'knet',
-    totalKwd: Number(body.totalKwd || 0),
-    status: 'confirmed',
-    customerPhone: body.customerPhone || '+965 9912 3456',
-    customerName: body.customerName || 'ضيفة صالوني',
+    totalKwd,
+    commissionKwd,
+    salonNetKwd,
+    status: 'new',
+    seenBySalon: false,
+    customerPhone: custPhone,
+    customerName: custName,
     shareWithFamily: Boolean(body.shareWithFamily),
     familyPhone: body.familyPhone || '',
     notes: body.notes || '',
+    salonWhatsappUrl: buildWhatsAppLink(salonWhatsapp, salonWaText),
+    customerWhatsappUrl: buildWhatsAppLink(custPhone, customerWaText),
     createdAt: new Date().toISOString()
   };
-  bookingsStore.unshift(booking);
-  res.status(201).json({ ok: true, booking });
+
+  db.bookings.unshift(booking);
+
+  const notification = {
+    id: 'NTF-' + Date.now(),
+    salonId: booking.salonId,
+    bookingId: booking.id,
+    type: 'new_booking',
+    title: {
+      ar: `🔔 حجز جديد (${booking.id}) — ${totalKwd.toFixed(3)} د.ك`,
+      en: `🔔 New Booking (${booking.id}) — ${totalKwd.toFixed(3)} KD`
+    },
+    message: {
+      ar: `الزبونة ${custName} (${custPhone}) حجزت «${servicesNamesAr}» يوم ${dateStr} الساعة ${timeStr} مع ${staffAr}.`,
+      en: `Customer ${custName} (${custPhone}) booked "${servicesNamesAr}" on ${dateStr} at ${timeStr}.`
+    },
+    whatsappUrl: booking.salonWhatsappUrl,
+    customerWhatsappUrl: booking.customerWhatsappUrl,
+    read: false,
+    createdAt: booking.createdAt
+  };
+
+  db.notifications.unshift(notification);
+  saveDb();
+
+  res.status(201).json({ ok: true, booking, notification });
+});
+
+app.patch('/api/bookings/:id/status', (req, res) => {
+  const booking = db.bookings.find((b) => b.id === req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  const { status } = req.body || {};
+  if (status) {
+    booking.status = status;
+    booking.seenBySalon = true;
+  }
+  db.notifications.forEach((n) => {
+    if (n.bookingId === booking.id) n.read = true;
+  });
+  saveDb();
+  res.json({ ok: true, booking });
 });
 
 // ── خدمة بناء الويب الثابت (نفس أصل الخادم، بلا CORS، مع دعم PWA) ────────

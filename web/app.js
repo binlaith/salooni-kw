@@ -158,10 +158,15 @@
 
   const state = {
     lang: 'ar',
-    screen: 'home', // 'home' | 'salon' | 'checkout' | 'confirmed' | 'bookings' | 'offers' | 'shop' | 'profile'
+    screen: 'home', // 'home' | 'salon' | 'checkout' | 'confirmed' | 'bookings' | 'offers' | 'shop' | 'profile' | 'portal'
     history: [],
     salons: [],
+    allSalonsAdmin: [],
     bookings: [],
+    notifications: [],
+    unreadCount: 0,
+    portalTab: 'salon_desk', // 'salon_desk' | 'admin_desk'
+    managedSalonId: 'salon-laleh',
     selectedCategory: 'all',
     selectedGov: 'all',
     searchQuery: '',
@@ -268,9 +273,11 @@
 
   async function loadInitialData() {
     try {
-      const [sRes, bRes] = await Promise.all([
+      const [sRes, allSRes, bRes, nRes] = await Promise.all([
         fetch('/api/salons'),
-        fetch('/api/bookings')
+        fetch('/api/salons?all=1'),
+        fetch('/api/bookings'),
+        fetch('/api/notifications')
       ]);
       if (sRes.ok) {
         const sData = await sRes.json();
@@ -278,15 +285,46 @@
         if (!state.activeSalonId && state.salons.length > 0) {
           state.activeSalonId = state.salons[0].id;
         }
+        if (!state.managedSalonId && state.salons.length > 0) {
+          state.managedSalonId = state.salons[0].id;
+        }
+      }
+      if (allSRes.ok) {
+        const allData = await allSRes.json();
+        state.allSalonsAdmin = allData.salons || [];
       }
       if (bRes.ok) {
         const bData = await bRes.json();
         state.bookings = bData.bookings || [];
       }
+      if (nRes.ok) {
+        const nData = await nRes.json();
+        state.notifications = nData.notifications || [];
+        state.unreadCount = nData.unreadCount || 0;
+      }
     } catch (e) {
       console.error('Failed loading initial data', e);
     }
     render();
+  }
+
+  function playChime() {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      const ctx = new Ctx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.14); // A5
+      gain.gain.setValueAtTime(0.18, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.55);
+    } catch (e) {}
   }
 
   function getActiveSalon() {
@@ -300,6 +338,7 @@
 
   function renderHeader() {
     const showBack = state.screen !== 'home';
+    const unread = state.notifications.filter((n) => !n.read).length;
     return `
       <header class="top-header">
         <div style="display:flex;align-items:center;gap:10px;">
@@ -313,11 +352,12 @@
           </div>
         </div>
         <div class="header-actions">
+          <button class="pill-btn ${state.screen === 'portal' ? 'rose' : ''}" data-action="open-portal">
+            <span>${state.lang === 'ar' ? 'لوحة الصالون / الأدمن' : 'Salon / Admin'}</span>
+            ${unread > 0 ? `<span class="notif-badge-dot ltr-num">${unread}</span>` : ''}
+          </button>
           <button class="pill-btn" data-action="toggle-lang">
             <span>${state.lang === 'ar' ? 'EN' : 'عربي'}</span>
-          </button>
-          <button class="pill-btn rose" data-action="open-login">
-            <span class="ltr-num">${state.user ? state.user.phone.slice(0, 9) + '••' : t('loginBtn')}</span>
           </button>
         </div>
       </header>
@@ -696,6 +736,14 @@
         </div>
 
         <div style="display:flex;flex-direction:column;gap:10px;">
+          ${b.salonWhatsappUrl ? `
+            <a class="wa-btn solid" href="${b.salonWhatsappUrl}" target="_blank" rel="noopener">
+              <span>${state.lang === 'ar' ? 'إرسال إشعار فوري لواتساب الصالون الآن' : 'Send Instant WhatsApp Alert to Salon'}</span>
+            </a>
+          ` : ''}
+          <button class="pill-btn rose" style="justify-content:center;padding:13px;" data-action="open-portal">
+            <span>${state.lang === 'ar' ? 'شاهدي كيف وصل الحجز الآن في شاشة الصالون 🔔' : 'See Live Booking Alert on Salon Screen 🔔'}</span>
+          </button>
           <button class="primary-btn" data-action="go-bookings">${t('viewMyBookings')}</button>
           <button class="pill-btn" style="justify-content:center;padding:12px;" data-action="go-home">${t('backToHome')}</button>
         </div>
@@ -743,6 +791,293 @@
           </p>
           <button class="primary-btn" data-action="go-home">${t('backToHome')}</button>
         </div>
+      </div>
+    `;
+  }
+
+  function renderPortalScreen() {
+    const isAr = state.lang === 'ar';
+    const allSalons = state.allSalonsAdmin.length ? state.allSalonsAdmin : state.salons;
+    const managedSalon = allSalons.find((s) => s.id === state.managedSalonId) || allSalons[0];
+    const salonBookings = state.bookings.filter((b) => !managedSalon || b.salonId === managedSalon.id);
+    const salonNotifs = state.notifications.filter((n) => !managedSalon || n.salonId === managedSalon.id);
+    const unreadNotifs = salonNotifs.filter((n) => !n.read);
+
+    const totalRevenue = state.bookings.reduce((s, b) => s + Number(b.totalKwd || 0), 0);
+    const totalCommission = state.bookings.reduce((s, b) => s + Number(b.commissionKwd || (Number(b.totalKwd || 0) * 0.15)), 0);
+
+    const statusLabels = {
+      new: { ar: 'حجز جديد 🔔', en: 'New Alert 🔔' },
+      confirmed: { ar: 'تم القبول والتأكيد ✓', en: 'Accepted ✓' },
+      ready: { ar: 'الخبيرة جاهزة لاستقبالكِ ✨', en: 'Specialist Ready ✨' },
+      completed: { ar: 'مكتمل', en: 'Completed' }
+    };
+
+    return `
+      <div style="padding:16px 18px 80px;">
+        <div class="sub-tabs" style="padding:0 0 14px 0;">
+          <button class="sub-tab ${state.portalTab === 'salon_desk' ? 'active' : ''}" data-action="portal-tab" data-tab="salon_desk">
+            ${isAr ? 'شاشة رسبشن الصالون 🔔' : 'Salon Reception Desk 🔔'}
+            ${unreadNotifs.length > 0 ? `<span class="notif-badge-dot ltr-num" style="margin-inline-start:6px;">${unreadNotifs.length}</span>` : ''}
+          </button>
+          <button class="sub-tab ${state.portalTab === 'admin_desk' ? 'active' : ''}" data-action="portal-tab" data-tab="admin_desk">
+            ${isAr ? 'لوحة الأدمن (+ إضافة صالون)' : 'Admin (+ Add Salon)'}
+          </button>
+        </div>
+
+        ${state.portalTab === 'salon_desk' ? `
+          <!-- اختيار الصالون الذي نعرض شاشته الآن -->
+          <div class="detail-card" style="margin:0 0 14px 0;">
+            <label class="field-label">${isAr ? 'شاشة الصالون المعروضة حالياً (جربي تبديل الصالون):' : 'Currently Viewing Reception Screen For:'}</label>
+            <select id="managed-salon-select" class="text-input" style="font-weight:700;">
+              ${allSalons.map((s) => `
+                <option value="${s.id}" ${managedSalon && managedSalon.id === s.id ? 'selected' : ''}>
+                  ${tr(s.name)} — ${tr(s.area)} (${s.whatsappPhone || '+96599001122'})
+                </option>
+              `).join('')}
+            </select>
+          </div>
+
+          <!-- التنبيهات الفورية غير المقروءة للصالون -->
+          ${unreadNotifs.length > 0 ? `
+            <div class="alert-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <strong style="color:var(--rose-dark);font-size:14px;">
+                  ${isAr ? `🔔 وصلت ${unreadNotifs.length} حجوزات جديدة للصالون!` : `🔔 ${unreadNotifs.length} New Booking Alerts!`}
+                </strong>
+                <button class="pill-btn" data-action="mark-notifs-read" style="font-size:11.5px;padding:4px 10px;">
+                  ${isAr ? 'تم الاطلاع' : 'Dismiss'}
+                </button>
+              </div>
+              ${unreadNotifs.map((n) => `
+                <div style="padding:10px;background:#fff;border-radius:12px;border:1px solid var(--border);margin-bottom:8px;">
+                  <div style="font-weight:700;font-size:13.5px;color:var(--rose-dark);margin-bottom:3px;">${tr(n.title)}</div>
+                  <div style="font-size:12.5px;color:var(--text);margin-bottom:8px;">${tr(n.message)}</div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    ${n.whatsappUrl ? `<a class="wa-btn solid" href="${n.whatsappUrl}" target="_blank" rel="noopener">${isAr ? 'إشعار واتساب الصالون' : 'Salon WhatsApp'}</a>` : ''}
+                    ${n.customerWhatsappUrl ? `<a class="wa-btn" href="${n.customerWhatsappUrl}" target="_blank" rel="noopener">${isAr ? 'مراسلة الزبونة واتساب' : 'WhatsApp Customer'}</a>` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          <!-- جدول حجوزات الصالون مع أزرار التحديث الفوري والواتساب -->
+          <div class="detail-card" style="margin:0 0 14px 0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <h3 style="font-size:16px;font-weight:700;">${isAr ? 'حجوزات الزبونات الواردة للصالون' : 'Incoming Salon Bookings'}</h3>
+              <span class="badge-chip ltr-num">${salonBookings.length}</span>
+            </div>
+
+            ${salonBookings.length === 0 ? `
+              <p style="font-size:13px;color:var(--text-muted);text-align:center;padding:18px 0;">
+                ${isAr ? 'لا توجد حجوزات لهذا الصالون بعد.' : 'No bookings for this salon yet.'}
+              </p>
+            ` : salonBookings.map((b) => {
+              const stKey = b.status || 'confirmed';
+              const stLabel = statusLabels[stKey] ? tr(statusLabels[stKey]) : stKey;
+              return `
+                <div style="padding:13px;border-radius:14px;border:1px solid var(--border);background:var(--bg);margin-bottom:10px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
+                    <span class="badge-chip ltr-num">${b.id}</span>
+                    <span class="status-pill ${stKey}">${stLabel}</span>
+                  </div>
+                  <div style="font-weight:700;font-size:14.5px;margin-bottom:3px;">
+                    ${b.customerName} — <span class="ltr-num" style="color:var(--rose-dark);">${b.customerPhone}</span>
+                  </div>
+                  <div style="font-size:13px;color:var(--text);margin-bottom:4px;">
+                    ${(b.services || []).map((s) => tr(s.name)).join(' + ')}
+                  </div>
+                  <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:8px;">
+                    📅 <span class="ltr-num">${b.date}</span> • ⏰ <span class="ltr-num">${b.timeSlot}</span> • 👩‍🎨 ${tr(b.staffName)}
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding-top:8px;border-top:1px solid var(--border);margin-bottom:10px;">
+                    <span>${isAr ? 'المدفوع' : 'Paid'} (${String(b.paymentMethod || 'KNET').toUpperCase()}): <strong class="ltr-num" style="color:var(--rose-dark);">${formatKwd(b.totalKwd)}</strong></span>
+                    <span>${isAr ? 'صافي الصالون:' : 'Salon Net:'} <strong class="ltr-num">${formatKwd(b.salonNetKwd || (b.totalKwd * 0.85))}</strong></span>
+                  </div>
+
+                  <!-- أزرار تحكم الصالون بالحجز -->
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+                    <button class="pill-btn ${b.status === 'confirmed' ? 'rose' : ''}" data-action="booking-status" data-booking-id="${b.id}" data-status="confirmed">
+                      ${isAr ? '١. قبول وتأكيد الموعد' : '1. Accept Booking'}
+                    </button>
+                    <button class="pill-btn ${b.status === 'ready' ? 'rose' : ''}" data-action="booking-status" data-booking-id="${b.id}" data-status="ready">
+                      ${isAr ? '٢. الخبيرة جاهزة' : '2. Specialist Ready'}
+                    </button>
+                    <button class="pill-btn ${b.status === 'completed' ? 'rose' : ''}" data-action="booking-status" data-booking-id="${b.id}" data-status="completed">
+                      ${isAr ? '٣. مكتمل' : '3. Completed'}
+                    </button>
+                  </div>
+
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    ${b.salonWhatsappUrl ? `<a class="wa-btn solid" href="${b.salonWhatsappUrl}" target="_blank" rel="noopener">${isAr ? 'إرسال تفاصيل الحجز لواتساب الصالون' : 'Send to Salon WhatsApp'}</a>` : ''}
+                    ${b.customerWhatsappUrl ? `<a class="wa-btn" href="${b.customerWhatsappUrl}" target="_blank" rel="noopener">${isAr ? 'إرسال تأكيد لواتساب الزبونة' : 'WhatsApp Customer'}</a>` : ''}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <!-- إضافة خدمة جديدة أو خبيرة جديدة لهذا الصالون فوراً -->
+          ${managedSalon ? `
+            <div class="detail-card" style="margin:0 0 14px 0;">
+              <h3 style="font-size:15.5px;font-weight:700;margin-bottom:10px;">
+                ${isAr ? `➕ إضافة خدمة جديدة لـ «${tr(managedSalon.name)}»` : `➕ Add New Service to ${tr(managedSalon.name)}`}
+              </h3>
+              <div class="form-grid-2">
+                <div>
+                  <label class="field-label">${isAr ? 'اسم الخدمة (عربي)' : 'Service Name (AR)'}</label>
+                  <input type="text" id="new-srv-ar" class="text-input" placeholder="مثال: بديكير سبا ملكي" />
+                </div>
+                <div>
+                  <label class="field-label">${isAr ? 'اسم الخدمة (إنجليزي)' : 'Service Name (EN)'}</label>
+                  <input type="text" id="new-srv-en" class="text-input" placeholder="Royal Spa Pedicure" />
+                </div>
+              </div>
+              <div class="form-grid-2">
+                <div>
+                  <label class="field-label">${isAr ? 'السعر (د.ك)' : 'Price (KWD)'}</label>
+                  <input type="number" step="0.500" id="new-srv-price" class="text-input ltr-num" value="18.000" />
+                </div>
+                <div>
+                  <label class="field-label">${isAr ? 'المدة (دقيقة)' : 'Duration (min)'}</label>
+                  <input type="number" id="new-srv-dur" class="text-input ltr-num" value="60" />
+                </div>
+              </div>
+              <button class="primary-btn" data-action="add-service-to-salon">
+                ${isAr ? 'إضافة الخدمة للصالون فوراً' : 'Add Service Now'}
+              </button>
+            </div>
+
+            <div class="detail-card" style="margin:0;">
+              <h3 style="font-size:15.5px;font-weight:700;margin-bottom:10px;">
+                ${isAr ? `👩‍🎨 إضافة خبيرة جديدة لـ «${tr(managedSalon.name)}»` : `👩‍🎨 Add Specialist to ${tr(managedSalon.name)}`}
+              </h3>
+              <div class="form-grid-2">
+                <div>
+                  <label class="field-label">${isAr ? 'اسم الخبيرة (عربي)' : 'Specialist Name (AR)'}</label>
+                  <input type="text" id="new-staff-ar" class="text-input" placeholder="مثال: دلال المطيري" />
+                </div>
+                <div>
+                  <label class="field-label">${isAr ? 'التخصص' : 'Specialty Role'}</label>
+                  <input type="text" id="new-staff-role" class="text-input" placeholder="خبيرة شعر ومكياج" />
+                </div>
+              </div>
+              <button class="pill-btn rose" style="width:100%;justify-content:center;padding:12px;" data-action="add-staff-to-salon">
+                ${isAr ? 'إضافة الخبيرة للصالون' : 'Add Specialist'}
+              </button>
+            </div>
+          ` : ''}
+        ` : `
+          <!-- لوحة الأدمن: إحصائيات المنصة + إضافة صالون جديد + إدارة الصالونات -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-val ltr-num">${allSalons.length}</div>
+              <div class="kpi-lbl">${isAr ? 'الصالونات المسجلة' : 'Total Salons'}</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-val ltr-num">${formatKwd(totalRevenue)}</div>
+              <div class="kpi-lbl">${isAr ? 'إجمالي الحجوزات' : 'Gross Bookings'}</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-val ltr-num">${formatKwd(totalCommission)}</div>
+              <div class="kpi-lbl">${isAr ? 'عمولة صالوني (15%)' : 'Salooni Fee (15%)'}</div>
+            </div>
+          </div>
+
+          <div class="detail-card" style="margin:0 0 16px 0;">
+            <h3 style="font-size:16.5px;font-weight:700;color:var(--rose-dark);margin-bottom:4px;">
+              ${isAr ? '➕ إضافة صالون كويتي جديد للمنصة' : '➕ Add New Kuwait Salon to Salooni'}
+            </h3>
+            <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;">
+              ${isAr ? 'بمجرد الضغط على حفظ، ينزل الصالون فوراً في الصفحة الرئيسية مع خدماته وخبيراته ورقم واتساب استلام الحجوزات.' : 'Once saved, the salon appears immediately on the Home screen with its services, staff & WhatsApp booking alert number.'}
+            </p>
+
+            <div class="form-grid-2">
+              <div>
+                <label class="field-label">${isAr ? 'اسم الصالون (عربي) *' : 'Salon Name (Arabic) *'}</label>
+                <input type="text" id="add-salon-name-ar" class="text-input" placeholder="مثال: روزا بيوتي لاونج" />
+              </div>
+              <div>
+                <label class="field-label">${isAr ? 'اسم الصالون (إنجليزي)' : 'Salon Name (English)'}</label>
+                <input type="text" id="add-salon-name-en" class="text-input" placeholder="Rosa Beauty Lounge" />
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div>
+                <label class="field-label">${isAr ? 'المحافظة' : 'Governorate'}</label>
+                <input type="text" id="add-salon-gov-ar" class="text-input" value="العاصمة" />
+              </div>
+              <div>
+                <label class="field-label">${isAr ? 'المنطقة (الكويت) *' : 'Kuwait Area *'}</label>
+                <input type="text" id="add-salon-area-ar" class="text-input" placeholder="مثال: اليرموك / قرطبة" />
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div>
+                <label class="field-label">${isAr ? 'رقم واتساب الصالون لإشعارات الحجز' : 'Salon WhatsApp for Alerts'}</label>
+                <input type="text" id="add-salon-wa" class="text-input ltr-num" value="+96599112233" />
+              </div>
+              <div>
+                <label class="field-label">${isAr ? 'ساعات العمل' : 'Working Hours'}</label>
+                <input type="text" id="add-salon-hours" class="text-input ltr-num" value="10:00 - 22:00" />
+              </div>
+            </div>
+
+            <div style="margin-bottom:10px;">
+              <label class="field-label">${isAr ? 'وصف قصير للصالون' : 'Short Tagline'}</label>
+              <input type="text" id="add-salon-tagline" class="text-input" placeholder="مثال: أفخم خدمات الشعر والأظافر والمكياج للسيدات" />
+            </div>
+
+            <div class="form-grid-2">
+              <div>
+                <label class="field-label">${isAr ? 'الخدمة الأولى بالصالون' : 'Initial Featured Service'}</label>
+                <input type="text" id="add-salon-srv-name" class="text-input" value="سشوار وويفي + تريتمنت لمعان" />
+              </div>
+              <div>
+                <label class="field-label">${isAr ? 'سعر الخدمة (د.ك)' : 'Service Price (KWD)'}</label>
+                <input type="number" step="0.500" id="add-salon-srv-price" class="text-input ltr-num" value="20.000" />
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div>
+                <label class="field-label">${isAr ? 'اسم الخبيرة الأولى' : 'Lead Specialist Name'}</label>
+                <input type="text" id="add-salon-staff-name" class="text-input" value="العنود الصالح" />
+              </div>
+              <div>
+                <label class="field-label">${isAr ? 'رابط صورة الغلاف (اختياري)' : 'Cover Image URL'}</label>
+                <input type="text" id="add-salon-cover" class="text-input ltr-num" value="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1000&q=85" />
+              </div>
+            </div>
+
+            <button class="primary-btn" data-action="create-salon-submit">
+              ${isAr ? 'حفظ ونشر الصالون في المنصة فوراً ✓' : 'Save & Publish Salon Immediately ✓'}
+            </button>
+          </div>
+
+          <!-- قائمة إدارة جميع الصالونات الحالية -->
+          <div class="detail-card" style="margin:0;">
+            <h3 style="font-size:15.5px;font-weight:700;margin-bottom:10px;">
+              ${isAr ? 'إدارة الصالونات المعتمدة في المنصة' : 'Manage Platform Salons'}
+            </h3>
+            ${allSalons.map((s) => `
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:8px;">
+                <div>
+                  <div style="font-weight:700;font-size:14px;">${tr(s.name)}</div>
+                  <div style="font-size:12px;color:var(--text-muted);">
+                    ${tr(s.governorate)} • ${tr(s.area)} • <span class="ltr-num">${s.services.length}</span> ${isAr ? 'خدمات' : 'services'} • واتساب: <span class="ltr-num">${s.whatsappPhone || '+96599001122'}</span>
+                  </div>
+                </div>
+                <div style="display:flex;gap:6px;">
+                  <button class="pill-btn" data-action="open-salon" data-salon-id="${s.id}">${isAr ? 'معاينة' : 'View'}</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `}
       </div>
     `;
   }
@@ -855,6 +1190,7 @@
     else if (state.screen === 'offers') bodyHtml = renderPhasePreviewScreen('العروض الحصرية لصالوني', 'Salooni Exclusive Offers', 3);
     else if (state.screen === 'shop') bodyHtml = renderPhasePreviewScreen('متجر منتجات الصالونات', 'Salon Products Marketplace', 4);
     else if (state.screen === 'profile') bodyHtml = renderProfileScreen();
+    else if (state.screen === 'portal') bodyHtml = renderPortalScreen();
 
     root.innerHTML = `
       <div class="app-shell">
@@ -882,10 +1218,49 @@
       });
     }
 
+    // استطلاع تلقائي للإشعارات والحجوزات كل 8 ثوانٍ حتى يرن الجرس فوراً عند الصالون
+    if (!window.__salooniPollerStarted) {
+      window.__salooniPollerStarted = true;
+      setInterval(async () => {
+        try {
+          const [nRes, bRes] = await Promise.all([
+            fetch('/api/notifications'),
+            fetch('/api/bookings')
+          ]);
+          if (nRes.ok && bRes.ok) {
+            const nData = await nRes.json();
+            const bData = await bRes.json();
+            const prevUnread = state.unreadCount;
+            const newUnread = nData.unreadCount || 0;
+            state.notifications = nData.notifications || [];
+            state.bookings = bData.bookings || [];
+            state.unreadCount = newUnread;
+            if (newUnread > prevUnread) {
+              playChime();
+              render();
+            } else if (state.screen === 'portal' || state.screen === 'bookings') {
+              const activeTag = (document.activeElement && document.activeElement.tagName) || '';
+              if (activeTag !== 'INPUT' && activeTag !== 'TEXTAREA' && activeTag !== 'SELECT') {
+                render();
+              }
+            }
+          }
+        } catch (e) {}
+      }, 8000);
+    }
+
     const chk = document.getElementById('share-family-chk');
     if (chk) {
       chk.addEventListener('change', (e) => {
         state.shareWithFamily = e.target.checked;
+        render();
+      });
+    }
+
+    const managedSel = document.getElementById('managed-salon-select');
+    if (managedSel) {
+      managedSel.addEventListener('change', (e) => {
+        state.managedSalonId = e.target.value;
         render();
       });
     }
@@ -975,6 +1350,12 @@
             if (data && data.booking) {
               state.lastBooking = data.booking;
               state.bookings.unshift(data.booking);
+              state.managedSalonId = salon.id;
+            }
+            if (data && data.notification) {
+              state.notifications.unshift(data.notification);
+              state.unreadCount = state.notifications.filter((n) => !n.read).length;
+              playChime();
             }
           } catch (err) {
             console.error(err);
@@ -982,6 +1363,80 @@
           navigate('confirmed');
         } else if (action === 'go-bookings') {
           navigate('bookings');
+        } else if (action === 'open-portal') {
+          navigate('portal');
+        } else if (action === 'portal-tab') {
+          state.portalTab = el.getAttribute('data-tab');
+          render();
+        } else if (action === 'mark-notifs-read') {
+          await fetch('/api/notifications/mark-read', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ salonId: state.managedSalonId })
+          }).catch(() => {});
+          await loadInitialData();
+        } else if (action === 'booking-status') {
+          const bId = el.getAttribute('data-booking-id');
+          const st = el.getAttribute('data-status');
+          await fetch(`/api/bookings/${bId}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: st })
+          }).catch(() => {});
+          await loadInitialData();
+        } else if (action === 'add-service-to-salon') {
+          const nameAr = (document.getElementById('new-srv-ar') || {}).value || '';
+          const nameEn = (document.getElementById('new-srv-en') || {}).value || nameAr;
+          const priceKwd = Number((document.getElementById('new-srv-price') || {}).value || 18);
+          const durationMin = Number((document.getElementById('new-srv-dur') || {}).value || 60);
+          if (!nameAr.trim()) return;
+          await fetch(`/api/salons/${state.managedSalonId}/services`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nameAr, nameEn, priceKwd, durationMin, category: 'hair' })
+          }).catch(() => {});
+          await loadInitialData();
+        } else if (action === 'add-staff-to-salon') {
+          const nameAr = (document.getElementById('new-staff-ar') || {}).value || '';
+          const roleAr = (document.getElementById('new-staff-role') || {}).value || 'خبيرة تجميل';
+          if (!nameAr.trim()) return;
+          await fetch(`/api/salons/${state.managedSalonId}/staff`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nameAr, nameEn: nameAr, roleAr, roleEn: roleAr })
+          }).catch(() => {});
+          await loadInitialData();
+        } else if (action === 'create-salon-submit') {
+          const nameAr = (document.getElementById('add-salon-name-ar') || {}).value || '';
+          const nameEn = (document.getElementById('add-salon-name-en') || {}).value || nameAr;
+          const govAr = (document.getElementById('add-salon-gov-ar') || {}).value || 'العاصمة';
+          const areaAr = (document.getElementById('add-salon-area-ar') || {}).value || 'السرة';
+          const whatsappPhone = (document.getElementById('add-salon-wa') || {}).value || '+96599112233';
+          const hoursSunThu = (document.getElementById('add-salon-hours') || {}).value || '10:00 - 22:00';
+          const taglineAr = (document.getElementById('add-salon-tagline') || {}).value || 'أناقة وعناية متكاملة للسيدات في الكويت';
+          const firstServiceNameAr = (document.getElementById('add-salon-srv-name') || {}).value || 'سشوار وويفي ملكي';
+          const firstServicePriceKwd = Number((document.getElementById('add-salon-srv-price') || {}).value || 20);
+          const firstStaffNameAr = (document.getElementById('add-salon-staff-name') || {}).value || 'العنود الصالح';
+          const coverImage = (document.getElementById('add-salon-cover') || {}).value || '';
+          if (!nameAr.trim()) return;
+          const res = await fetch('/api/salons', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              nameAr, nameEn, govAr, govEn: govAr, areaAr, areaEn: areaAr,
+              whatsappPhone, hoursSunThu, taglineAr, taglineEn: taglineAr,
+              firstServiceNameAr, firstServiceNameEn: firstServiceNameAr,
+              firstServicePriceKwd, firstStaffNameAr, firstStaffNameEn: firstStaffNameAr,
+              coverImage
+            })
+          });
+          const data = await res.json().catch(() => ({}));
+          await loadInitialData();
+          if (data && data.salon) {
+            state.activeSalonId = data.salon.id;
+            state.managedSalonId = data.salon.id;
+          }
+          navigate('home');
         } else if (action === 'open-login') {
           state.showLoginModal = true;
           state.otpStep = 'phone';
