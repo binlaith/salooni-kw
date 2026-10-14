@@ -90,7 +90,7 @@ const INITIAL_SALONS = [
         id: 'srv-4',
         category: 'makeup',
         name: { ar: 'مكياج سهرة ناعم (سوفير غلام)', en: 'Soft Glam Evening Makeup' },
-        description: { ar: 'مكياج راقٍ يبرز ملامحكِ الطبيعية مع رموش حريرية', en: 'Refined glam highlighting your features with silk lashes' },
+        description: { ar: 'مكياج راق يبرز ملامحك الطبيعية مع رموش حريرية', en: 'Refined glam highlighting your features with silk lashes' },
         durationMin: 60,
         priceKwd: 45.000
       },
@@ -154,7 +154,7 @@ const INITIAL_SALONS = [
     whatsappPhone: '+96599334455',
     commissionRate: 0.15,
     name: { ar: 'فيلفت روز سبا آند بيوتي', en: 'Velvet Rose Spa & Beauty' },
-    tagline: { ar: 'واحتكِ الهادئة للعناية بالأظافر والبشرة والشعر', en: 'Your serene sanctuary for nails, skin & hair care' },
+    tagline: { ar: 'واحتك الهادئة للعناية بالأظافر والبشرة والشعر', en: 'Your serene sanctuary for nails, skin & hair care' },
     governorate: { ar: 'حولي', en: 'Hawalli' },
     area: { ar: 'الجابرية', en: 'Al-Jabriya' },
     address: {
@@ -261,7 +261,7 @@ const INITIAL_SALONS = [
     whatsappPhone: '+96599556677',
     commissionRate: 0.15,
     name: { ar: 'دار نور للعرائس والتجميل', en: 'Dar Noor Bridal & Couture Beauty' },
-    tagline: { ar: 'إطلالة ملكية تليق بليلة عمركِ وتألقكِ', en: 'Regal beauty crafted for your unforgettable moments' },
+    tagline: { ar: 'إطلالة ملكية تليق بليلة عمرك وتألقك', en: 'Regal beauty crafted for your unforgettable moments' },
     governorate: { ar: 'العاصمة', en: 'Al Asimah' },
     area: { ar: 'السرة', en: 'Al-Surra' },
     address: {
@@ -304,7 +304,7 @@ const INITIAL_SALONS = [
         id: 'ns-1',
         category: 'makeup',
         name: { ar: 'مكياج وتصفيف شعر VIP للمناسبات الخاصة', en: 'VIP Couture Makeup & Hair Combo' },
-        description: { ar: 'باقة متكاملة تشمل مكياج سهرة فاخر وتسريحة شعر حسب اختياركِ في جناح خاص', en: 'Full luxury evening makeup and custom hairstyling in a private suite' },
+        description: { ar: 'باقة متكاملة تشمل مكياج سهرة فاخر وتسريحة شعر حسب اختيارك في جناح خاص', en: 'Full luxury evening makeup and custom hairstyling in a private suite' },
         durationMin: 120,
         priceKwd: 85.000
       },
@@ -360,7 +360,7 @@ const INITIAL_SALONS = [
     whatsappPhone: '+96599778899',
     commissionRate: 0.15,
     name: { ar: 'كاميليا نيل آند هير بار', en: 'Camellia Nail & Hair Bar' },
-    tagline: { ar: 'دلّلي نفسكِ بأسرع وأجمل خدمات الشعر والأظافر', en: 'Pamper yourself with express luxury hair & nail care' },
+    tagline: { ar: 'دللي نفسك بأسرع وأجمل خدمات الشعر والأظافر', en: 'Pamper yourself with express luxury hair & nail care' },
     governorate: { ar: 'مبارك الكبير', en: 'Mubarak Al-Kabeer' },
     area: { ar: 'صباح السالم', en: 'Sabah Al-Salem' },
     address: {
@@ -380,7 +380,7 @@ const INITIAL_SALONS = [
       sunThu: '10:00 - 22:00',
       fri: '13:00 - 22:30',
       sat: '10:00 - 22:30',
-      weekendNote: { ar: 'مفتوح الجمعة والسبت حتى 10:30 مساءً', en: 'Open Fri & Sat until 10:30 PM' }
+      weekendNote: { ar: 'مفتوح الجمعة والسبت حتى 10:30 مساء', en: 'Open Fri & Sat until 10:30 PM' }
     },
     coverImage: 'https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?auto=format&fit=crop&w=1000&q=85',
     gallery: [
@@ -457,7 +457,7 @@ const INITIAL_BOOKINGS = [
     shareWithFamily: true,
     familyPhone: '+965 9988 7766',
     salonWhatsappUrl: 'https://wa.me/96599001122?text=' + encodeURIComponent('🌸 تنبيه حجز جديد من منصة صالوني Salooni\nرقم الحجز: BK-90421\nالزبونة: سارة الصباح (+965 9912 3456)\nالخدمة: سشوار وويفي ملكي\nالخبيرة: أمل العتيبي\nالموعد: 2026-10-16 الساعة 17:30\nالمدفوع: 18.500 د.ك (KNET)'),
-    customerWhatsappUrl: 'https://wa.me/96599123456?text=' + encodeURIComponent('🌸 أهلاً بكِ سارة الصباح في صالوني Salooni\nتم تأكيد حجزكِ رقم BK-90421 في لاليه بيوتي لاونج يوم 2026-10-16 الساعة 17:30.'),
+    customerWhatsappUrl: 'https://wa.me/96599123456?text=' + encodeURIComponent('🌸 أهلا بك سارة الصباح في صالوني Salooni\nتم تأكيد حجزك رقم BK-90421 في لاليه بيوتي لاونج يوم 2026-10-16 الساعة 17:30.'),
     createdAt: '2026-10-14T14:00:00Z'
   }
 ];
@@ -795,13 +795,13 @@ app.post('/api/bookings', (req, res) => {
     `يرجى تأكيد الاستعداد للموعد عبر لوحة الصالون.`;
 
   const customerWaText =
-    `🌸 *أهلاً بكِ ${custName} في صالوني Salooni*\n` +
-    `تم تأكيد حجزكِ في *${salon ? salon.name.ar : 'الصالون'}*\n` +
+    `🌸 *أهلا بك ${custName} في صالوني Salooni*\n` +
+    `تم تأكيد حجزك في *${salon ? salon.name.ar : 'الصالون'}*\n` +
     `🔖 رقم الحجز: ${bookingId}\n` +
     `💇‍♀️ الخدمة: ${servicesNamesAr}\n` +
     `📅 الموعد: ${dateStr} الساعة ${timeStr}\n` +
     `📍 العنوان: ${salon ? salon.area.ar : 'الكويت'}\n` +
-    `نتمنى لكِ تجربة جمال مميزة!`;
+    `نتمنى لك تجربة جمال مميزة!`;
 
   const booking = {
     id: bookingId,
@@ -904,7 +904,7 @@ if (fs.existsSync(path.join(WEB_DIR, 'index.html'))) {
     })
   );
 
-  // بديل SPA: أي مسار غير /api يُخدَم بـ web/index.html
+  // بديل SPA: أي مسار غير /api يخدم بـ web/index.html
   app.use((req, res, next) => {
     if (req.method !== 'GET' && req.method !== 'HEAD') return next();
     if (req.path.startsWith('/api')) return next();

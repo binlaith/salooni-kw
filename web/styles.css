@@ -30,14 +30,14 @@
 html, body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'IBM Plex Sans Arabic', 'Inter', sans-serif;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.55;
 }
 
 html[dir="ltr"] body {
-  font-family: 'Inter', 'IBM Plex Sans Arabic', sans-serif;
+  font-family: 'IBM Plex Sans Arabic', 'Inter', sans-serif;
 }
 
 /* Directional icon mirroring in RTL */

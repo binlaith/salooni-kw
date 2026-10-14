@@ -5,8 +5,8 @@
       appSub: 'الجمال والأناقة في الكويت',
       ladiesOnlyBanner: 'منصة نسائية ١٠٠٪ • خصوصية تامة للسيدات فقط',
       heroBadge: 'الكويت • حجز فوري ومؤكد',
-      heroTitle: 'دلّلي جمالكِ في أرقى صالونات الكويت',
-      heroSub: 'اختاري صالونكِ المفضل، حددي خبيرتكِ وموعدكِ بكل خصوصية وسهولة',
+      heroTitle: 'دللي جمالك في أرقى صالونات الكويت',
+      heroSub: 'اختاري صالونك المفضل، حددي خبيرتك وموعدك بكل خصوصية وسهولة',
       searchPlaceholder: 'ابحثي عن صالون، منطقة، أو خدمة (ويفي، BIAB، مكياج)...',
       allGovs: 'كل المحافظات',
       catAll: 'الكل',
@@ -15,12 +15,12 @@
       catMakeup: 'المكياج',
       catFacial: 'البشرة والفيشل',
       catLashes: 'الرموش والحواجب',
-      topSalonsTitle: 'صالونات مختارة لكِ',
+      topSalonsTitle: 'صالونات مختارة لك',
       salonsCountSuffix: 'صالون معتمد',
-      bookNowBtn: 'احجزي موعدكِ',
+      bookNowBtn: 'احجزي موعدك',
       backLabel: 'رجوع',
       hideFacesLabel: 'إخفاء الوجوه في الصور (وضع الخصوصية)',
-      hideFacesActive: 'مفعّل',
+      hideFacesActive: 'مفعل',
       hideFacesOff: 'مغلق',
       tabServices: 'الخدمات',
       tabStaff: 'الخبيرات',
@@ -29,7 +29,7 @@
       chooseServicesHint: 'اختاري خدمة واحدة أو أكثر للمتابعة',
       selectedCount: 'خدمات مختارة',
       continueToSlot: 'اختاري الموعد والخبيرة',
-      bookingStepTitle: 'تأكيد موعدكِ في الصالون',
+      bookingStepTitle: 'تأكيد موعدك في الصالون',
       selectSpecialist: 'اختاري الخبيرة المفضلة',
       anySpecialist: 'أي خبيرة متاحة',
       selectDate: 'اختاري اليوم (الجمعة والسبت عطلة نهاية الأسبوع)',
@@ -45,8 +45,8 @@
       notesPlaceholder: 'مثال: أرغب بجناح خاص للمحجبات...',
       totalAmount: 'الإجمالي',
       confirmAndPay: 'تأكيد الحجز والدفع',
-      bookingConfirmedTitle: 'تم تأكيد حجزكِ بنجاح!',
-      bookingConfirmedSub: 'أرسلنا تفاصيل الموعد وتذكير قبل 24 ساعة وساعتين إلى رقمكِ',
+      bookingConfirmedTitle: 'تم تأكيد حجزك بنجاح!',
+      bookingConfirmedSub: 'أرسلنا تفاصيل الموعد وتذكير قبل 24 ساعة وساعتين إلى رقمك',
       bookingRef: 'رقم الحجز',
       viewMyBookings: 'عرض حجوزاتي',
       backToHome: 'العودة للرئيسية',
@@ -56,10 +56,10 @@
       navBookings: 'حجوزاتي',
       navProfile: 'حسابي',
       myBookingsTitle: 'حجوزاتي المؤكدة',
-      noBookingsYet: 'لا توجد حجوزات بعد — اختاري صالونكِ المفضل وابدئي الحجز',
+      noBookingsYet: 'لا توجد حجوزات بعد — اختاري صالونك المفضل وابدئي الحجز',
       loginBtn: 'دخول',
       loginModalTitle: 'تسجيل الدخول برقم الهاتف الكويتي',
-      loginModalSub: 'أدخلي رقمكِ الكويتي (+965) ليصلكِ رمز التحقق الفوري OTP',
+      loginModalSub: 'أدخلي رقمك الكويتي (+965) ليصلك رمز التحقق الفوري OTP',
       nameLabel: 'الاسم الكريم',
       phoneLabel: 'رقم الموبايل الكويتي',
       sendOtpBtn: 'إرسال رمز التحقق (OTP)',
@@ -67,7 +67,7 @@
       verifyOtpBtn: 'تأكيد الدخول',
       demoOtpNotice: 'رمز التحقق التجريبي جاهز للتجربة الفورية:',
       phasePreviewBadge: 'المرحلة القادمة',
-      phasePreviewDesc: 'بناءً على خطة المشروع، تم إنجاز المرحلة الأولى بالكامل (نظام التصميم، ثنائية اللغة، الدخول عبر +965 OTP، الصفحة الرئيسية، صفحة الصالون، وتدفق حجز الصالون المتكامل). هذا القسم يُفعّل في المرحلة التالية بعد اعتمادكِ.',
+      phasePreviewDesc: 'بناء على خطة المشروع، تم إنجاز المرحلة الأولى بالكامل (نظام التصميم، ثنائية اللغة، الدخول عبر +965 OTP، الصفحة الرئيسية، صفحة الصالون، وتدفق حجز الصالون المتكامل). هذا القسم يفعل في المرحلة التالية بعد اعتمادك.',
       profileTitle: 'ملفي الشخصي وإعدادات الخصوصية',
       logoutBtn: 'تسجيل الخروج',
       minUnit: 'دقيقة',
@@ -185,11 +185,7 @@
     notes: '',
     lastBooking: null,
     // Auth state
-    user: {
-      name: 'سارة الصباح',
-      phone: '+965 9912 3456',
-      verified: true
-    },
+    user: null,
     showLoginModal: false,
     otpStep: 'phone', // 'phone' | 'otp'
     loginPhoneInput: '99123456',
@@ -338,24 +334,15 @@
 
   function renderHeader() {
     const showBack = state.screen !== 'home';
-    const unread = state.notifications.filter((n) => !n.read).length;
     return `
       <header class="top-header">
         <div style="display:flex;align-items:center;gap:10px;">
           ${showBack ? `<button class="back-btn" data-action="go-back" title="${t('backLabel')}">${ICONS.back}</button>` : ''}
           <div class="brand-wrap" data-action="go-home">
-            <div class="brand-mark-3d">ص</div>
-            <div>
-              <div class="brand-title">${t('appName')}</div>
-              <div class="brand-sub">${t('appSub')}</div>
-            </div>
+            <div class="brand-title">${t('appName')}</div>
           </div>
         </div>
         <div class="header-actions">
-          <button class="pill-btn ${state.screen === 'portal' ? 'rose' : ''}" data-action="open-portal">
-            <span>${state.lang === 'ar' ? 'لوحة الصالون / الأدمن' : 'Salon / Admin'}</span>
-            ${unread > 0 ? `<span class="notif-badge-dot ltr-num">${unread}</span>` : ''}
-          </button>
           <button class="pill-btn" data-action="toggle-lang">
             <span>${state.lang === 'ar' ? 'EN' : 'عربي'}</span>
           </button>
@@ -365,19 +352,7 @@
   }
 
   function renderHomeScreen() {
-    const categories = [
-      { id: 'all', label: t('catAll'), icon: ICONS.sparkle },
-      { id: 'hair', label: t('catHair'), icon: ICONS.sparkle },
-      { id: 'nails', label: t('catNails'), icon: ICONS.sparkle },
-      { id: 'makeup', label: t('catMakeup'), icon: ICONS.sparkle },
-      { id: 'facial', label: t('catFacial'), icon: ICONS.sparkle },
-      { id: 'lashes', label: t('catLashes'), icon: ICONS.sparkle }
-    ];
-
     const filtered = state.salons.filter((s) => {
-      if (state.selectedCategory !== 'all' && !(s.categories || []).includes(state.selectedCategory)) {
-        return false;
-      }
       if (state.searchQuery.trim()) {
         const q = state.searchQuery.trim().toLowerCase();
         const hay = `${s.name.ar} ${s.name.en} ${s.area.ar} ${s.area.en} ${s.services.map(x => x.name.ar + ' ' + x.name.en).join(' ')}`.toLowerCase();
@@ -387,37 +362,11 @@
     });
 
     return `
-      <div class="ladies-banner">
-        <span style="display:inline-flex;align-items:center;gap:6px;">${ICONS.shield} ${t('ladiesOnlyBanner')}</span>
-        <span class="ltr-num" style="font-size:11.5px;opacity:0.85;">+965 KW</span>
-      </div>
-
-      <section class="hero-card">
-        <div class="hero-badge">${ICONS.sparkle} <span>${t('heroBadge')}</span></div>
-        <h1 class="hero-title">${t('heroTitle')}</h1>
-        <p class="hero-sub">${t('heroSub')}</p>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <button class="pill-btn" data-action="toggle-global-blur" style="background:rgba(255,255,255,0.92);color:var(--rose-dark);border:none;">
-            ${ICONS.shield}
-            <span>${t('hideFacesLabel')}: <strong>${state.hideFacesGlobal ? t('hideFacesActive') : t('hideFacesOff')}</strong></span>
-          </button>
-        </div>
-      </section>
-
-      <div class="search-wrap">
+      <div class="search-wrap" style="margin-top:16px;">
         <div class="search-box">
           <span style="color:var(--rose);">${ICONS.sparkle}</span>
           <input type="text" id="search-input" value="${state.searchQuery}" placeholder="${t('searchPlaceholder')}" />
         </div>
-      </div>
-
-      <div class="cat-scroll">
-        ${categories.map((c) => `
-          <button class="cat-card ${state.selectedCategory === c.id ? 'active' : ''}" data-action="select-cat" data-cat="${c.id}">
-            <span class="icon-3d">${c.icon}</span>
-            <span style="font-size:13px;font-weight:600;">${c.label}</span>
-          </button>
-        `).join('')}
       </div>
 
       <div class="section-head">
@@ -741,9 +690,6 @@
               <span>${state.lang === 'ar' ? 'إرسال إشعار فوري لواتساب الصالون الآن' : 'Send Instant WhatsApp Alert to Salon'}</span>
             </a>
           ` : ''}
-          <button class="pill-btn rose" style="justify-content:center;padding:13px;" data-action="open-portal">
-            <span>${state.lang === 'ar' ? 'شاهدي كيف وصل الحجز الآن في شاشة الصالون 🔔' : 'See Live Booking Alert on Salon Screen 🔔'}</span>
-          </button>
           <button class="primary-btn" data-action="go-bookings">${t('viewMyBookings')}</button>
           <button class="pill-btn" style="justify-content:center;padding:12px;" data-action="go-home">${t('backToHome')}</button>
         </div>
@@ -809,7 +755,7 @@
     const statusLabels = {
       new: { ar: 'حجز جديد 🔔', en: 'New Alert 🔔' },
       confirmed: { ar: 'تم القبول والتأكيد ✓', en: 'Accepted ✓' },
-      ready: { ar: 'الخبيرة جاهزة لاستقبالكِ ✨', en: 'Specialist Ready ✨' },
+      ready: { ar: 'الخبيرة جاهزة لاستقبالك ✨', en: 'Specialist Ready ✨' },
       completed: { ar: 'مكتمل', en: 'Completed' }
     };
 
@@ -828,7 +774,7 @@
         ${state.portalTab === 'salon_desk' ? `
           <!-- اختيار الصالون الذي نعرض شاشته الآن -->
           <div class="detail-card" style="margin:0 0 14px 0;">
-            <label class="field-label">${isAr ? 'شاشة الصالون المعروضة حالياً (جربي تبديل الصالون):' : 'Currently Viewing Reception Screen For:'}</label>
+            <label class="field-label">${isAr ? 'شاشة الصالون المعروضة حاليا (جربي تبديل الصالون):' : 'Currently Viewing Reception Screen For:'}</label>
             <select id="managed-salon-select" class="text-input" style="font-weight:700;">
               ${allSalons.map((s) => `
                 <option value="${s.id}" ${managedSalon && managedSalon.id === s.id ? 'selected' : ''}>
@@ -918,7 +864,7 @@
             }).join('')}
           </div>
 
-          <!-- إضافة خدمة جديدة أو خبيرة جديدة لهذا الصالون فوراً -->
+          <!-- إضافة خدمة جديدة أو خبيرة جديدة لهذا الصالون فورا -->
           ${managedSalon ? `
             <div class="detail-card" style="margin:0 0 14px 0;">
               <h3 style="font-size:15.5px;font-weight:700;margin-bottom:10px;">
@@ -945,7 +891,7 @@
                 </div>
               </div>
               <button class="primary-btn" data-action="add-service-to-salon">
-                ${isAr ? 'إضافة الخدمة للصالون فوراً' : 'Add Service Now'}
+                ${isAr ? 'إضافة الخدمة للصالون فورا' : 'Add Service Now'}
               </button>
             </div>
 
@@ -990,7 +936,7 @@
               ${isAr ? '➕ إضافة صالون كويتي جديد للمنصة' : '➕ Add New Kuwait Salon to Salooni'}
             </h3>
             <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;">
-              ${isAr ? 'بمجرد الضغط على حفظ، ينزل الصالون فوراً في الصفحة الرئيسية مع خدماته وخبيراته ورقم واتساب استلام الحجوزات.' : 'Once saved, the salon appears immediately on the Home screen with its services, staff & WhatsApp booking alert number.'}
+              ${isAr ? 'بمجرد الضغط على حفظ، ينزل الصالون فورا في الصفحة الرئيسية مع خدماته وخبيراته ورقم واتساب استلام الحجوزات.' : 'Once saved, the salon appears immediately on the Home screen with its services, staff & WhatsApp booking alert number.'}
             </p>
 
             <div class="form-grid-2">
@@ -1054,7 +1000,7 @@
             </div>
 
             <button class="primary-btn" data-action="create-salon-submit">
-              ${isAr ? 'حفظ ونشر الصالون في المنصة فوراً ✓' : 'Save & Publish Salon Immediately ✓'}
+              ${isAr ? 'حفظ ونشر الصالون في المنصة فورا ✓' : 'Save & Publish Salon Immediately ✓'}
             </button>
           </div>
 
@@ -1083,19 +1029,38 @@
   }
 
   function renderProfileScreen() {
+    const isAr = state.lang === 'ar';
+    const unread = state.notifications.filter((n) => !n.read).length;
     return `
       <div style="padding:18px;">
         <h1 style="font-size:20px;font-weight:700;margin-bottom:14px;">${t('profileTitle')}</h1>
-        <div class="detail-card" style="margin:0 0 14px 0;">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-            <div class="brand-mark-3d" style="width:50px;height:50px;border-radius:16px;">س</div>
-            <div>
-              <div style="font-weight:700;font-size:16px;">${state.user.name}</div>
-              <div class="ltr-num" style="font-size:13px;color:var(--text-muted);">${state.user.phone}</div>
+
+        ${state.user ? `
+          <div class="detail-card" style="margin:0 0 14px 0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;">
+              <div>
+                <div style="font-weight:700;font-size:16px;">${state.user.name}</div>
+                <div class="ltr-num" style="font-size:13px;color:var(--text-muted);">${state.user.phone}</div>
+              </div>
+              <button class="pill-btn" data-action="logout-user">${t('logoutBtn')}</button>
             </div>
+
+            <button class="primary-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;" data-action="open-portal">
+              <span>${isAr ? 'لوحة الصالون / الأدمن' : 'Salon / Admin Portal'}</span>
+              ${unread > 0 ? `<span class="notif-badge-dot ltr-num" style="background:#fff;color:var(--rose-dark);">${unread}</span>` : ''}
+            </button>
           </div>
-          <button class="pill-btn" data-action="open-login">${t('loginModalTitle')}</button>
-        </div>
+        ` : `
+          <div class="detail-card" style="margin:0 0 14px 0;text-align:center;padding:24px 18px;">
+            <div style="font-weight:700;font-size:16px;margin-bottom:6px;">
+              ${isAr ? 'سجلي دخولك للوصول إلى حسابك ولوحة الصالون / الأدمن' : 'Sign in to access your account & Salon / Admin Portal'}
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">
+              ${t('loginModalSub')}
+            </p>
+            <button class="primary-btn" data-action="open-login">${t('loginModalTitle')}</button>
+          </div>
+        `}
 
         <div class="detail-card" style="margin:0 0 14px 0;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1218,7 +1183,7 @@
       });
     }
 
-    // استطلاع تلقائي للإشعارات والحجوزات كل 8 ثوانٍ حتى يرن الجرس فوراً عند الصالون
+    // استطلاع تلقائي للإشعارات والحجوزات كل 8 ثوان حتى يرن الجرس فورا عند الصالون
     if (!window.__salooniPollerStarted) {
       window.__salooniPollerStarted = true;
       setInterval(async () => {
@@ -1336,8 +1301,8 @@
             timeSlot: state.selectedTime,
             paymentMethod: state.paymentMethod,
             totalKwd,
-            customerPhone: state.user.phone,
-            customerName: state.user.name,
+            customerPhone: state.user ? state.user.phone : '+965 9912 3456',
+            customerName: state.user ? state.user.name : 'سارة الصباح',
             shareWithFamily: state.shareWithFamily
           };
           try {
@@ -1364,7 +1329,16 @@
         } else if (action === 'go-bookings') {
           navigate('bookings');
         } else if (action === 'open-portal') {
+          if (!state.user) {
+            state.showLoginModal = true;
+            state.otpStep = 'phone';
+            render();
+            return;
+          }
           navigate('portal');
+        } else if (action === 'logout-user') {
+          state.user = null;
+          navigate('profile', false);
         } else if (action === 'portal-tab') {
           state.portalTab = el.getAttribute('data-tab');
           render();
@@ -1475,6 +1449,7 @@
             }
           } catch (e) {}
           state.showLoginModal = false;
+          state.screen = 'profile';
           render();
         }
       });
